@@ -2,3 +2,11 @@
 pre-commit==2.13.0
 black
 autoflake
+
+
+pygithub 
+selenium 
+beautifulsoup4 
+requests 
+lxml 
+webdriver-manager 
