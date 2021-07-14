@@ -94,4 +94,3 @@ def getSequentialModel(full_list):
         if 'Sequential' in code_body.text:
             count+=1
     return count
-
