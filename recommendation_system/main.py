@@ -26,7 +26,7 @@ def get_data_from_repository(url, driver):
             href = link.get_attribute("href")
             if href in links_list:
                 continue
-            if "/tree/" in href or ".py" in href:
+            if "/tree/" in href or href.endswith(".py"):
                 links_list.add(href)
                 queue.append(href)
 
@@ -43,15 +43,18 @@ def get_data_from_repository(url, driver):
                 push_to_queue(links)
             except:
                 print("No element found")
-        elif ".py" in link and not "venv" in link:
+        elif link.endswith(".py") and not "venv" in link:
             driver.get(link)
             time.sleep(2.5)
-            code_body = driver.find_element_by_xpath(
-                "//*[@class='highlight tab-size js-file-line-container']"
-            )
-            if "Sequential" in code_body.text:
-                print("bam")
-                sequential_list.append(get_model_arrays(code_body.text))
+            try:
+                code_body = driver.find_element_by_xpath(
+                    "//*[@class='highlight tab-size js-file-line-container']"
+                )
+                if "Sequential" in code_body.text:
+                    print("bam")
+                    sequential_list.append(get_model_arrays(code_body.text))
+            except:
+                pass
 
     def bfs():
         while queue:
@@ -68,7 +71,7 @@ def get_data_from_repository(url, driver):
             links = table.find_elements_by_tag_name("a")
             for link in links:
                 href = link.get_attribute("href")
-                if ("/tree/" in href or ".py" in href) and not "venv" in href:
+                if ("/tree/" in href or href.endswith(".py")) and not "venv" in href:
                     links_list.add(href)
                     queue.append(href)
         except:
@@ -200,7 +203,7 @@ def get_all_repositories(start, end):
     options = Options()
     options.headless = True
     driver = webdriver.Chrome(ChromeDriverManager(path="./").install(), options=options)
-    for url in urls:
+    for url in tqdm(urls):
         get_data_from_repository(url, driver)
 
 
@@ -212,4 +215,4 @@ def get_all_repositories(start, end):
 
 # main()
 
-get_all_repositories()
+get_all_repositories("2021-04-01", "2021-04-02")
