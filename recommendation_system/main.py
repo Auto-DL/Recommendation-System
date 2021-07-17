@@ -208,7 +208,8 @@ def get_all_repositories(startDate, endDate):
     options.headless = True
     driver = webdriver.Chrome(ChromeDriverManager(path="./").install(), options=options)
     for url in tqdm(urls):
-        get_data_from_repository(url, driver,startTime)
+        startTimeForUrl = time.time()
+        get_data_from_repository(url, driver,startTimeForUrl)
     endTime = time.time()
     print("Total time taken:", {endTime-startTime})
 
