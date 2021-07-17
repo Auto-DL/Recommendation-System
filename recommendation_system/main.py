@@ -1,4 +1,5 @@
 import os
+import sys
 import pathlib
 
 import github as gh
@@ -17,7 +18,7 @@ from uuid import uuid4
 import re
 
 
-def get_data_from_repository(url, driver,startTime):
+def get_data_from_repository(url, driver,startTime, path):
     queue = list()
     links_list = set()
     sequential_list = list()
@@ -53,7 +54,7 @@ def get_data_from_repository(url, driver,startTime):
                 )
                 if "Sequential" in code_body.text:
                     print("bam")
-                    sequential_list.append(get_model_arrays(code_body.text))
+                    sequential_list.append(get_model_arrays(code_body.text, path))
             except:
                 print("ERROR")
 
@@ -106,7 +107,7 @@ def getLayerSequence1helper(code):
     return layerSequence
 
 
-def getCleanedLayers(layerlist):
+def getCleanedLayers(layerlist, path):
     layers = [
         "Conv2D",
         "Dense",
@@ -132,15 +133,15 @@ def getCleanedLayers(layerlist):
         if len(model) < 4:
             isValid = False
         if isValid:
-            model_to_pickle(temp)
+            model_to_pickle(temp, path)
 
 
-def getLayerSequence1(code):
+def getLayerSequence1(code, path):
     layerlist = getLayerSequence1helper(code)
-    getCleanedLayers(layerlist)
+    getCleanedLayers(layerlist, path)
 
 
-def getLayerSequence2(code):
+def getLayerSequence2(code, path):
     """
     This is the function for models of type model.add(layerName)
     :param code: the code to check layer sequence
@@ -178,15 +179,15 @@ def getLayerSequence2(code):
             model_to_pickle(modelLayers)
 
 
-def get_model_arrays(code):
-    getLayerSequence1(code)
-    getLayerSequence2(code)
+def get_model_arrays(code,path):
+    getLayerSequence1(code,path)
+    getLayerSequence2(code, path)
 
 
-def model_to_pickle(model):
+def model_to_pickle(model, path):
     fname = str(uuid4().hex[:32]) + ".pkl"
-    curr_dir = pathlib.Path(os.getcwd())
-    fpath = os.path.join(curr_dir, "data", fname)
+    # curr_dir = pathlib.Path(os.getcwd())
+    fpath = os.path.join(path, fname)
     with open(fpath, "wb") as f:
         pickle.dump(model, f)
         f.close()
@@ -194,7 +195,7 @@ def model_to_pickle(model):
 
 
 
-def main(startDate, endDate):
+def main(startDate, endDate,dataFolderPath):
     startTime = time.time()
     GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
     g = gh.Github(GITHUB_ACCESS_TOKEN)
@@ -208,7 +209,7 @@ def main(startDate, endDate):
     driver = webdriver.Chrome(ChromeDriverManager(path="./").install(), options=options)
     for url in tqdm(urls):
         startTimeForUrl = time.time()
-        get_data_from_repository(url, driver,startTimeForUrl)
+        get_data_from_repository(url, driver,startTimeForUrl, dataFolderPath)
     endTime = time.time()
     print("Total time taken:", {endTime-startTime})
 
@@ -216,7 +217,7 @@ def main(startDate, endDate):
 # url2 = "https://github.com/bamblebam/image-classification-rps"
 # t = get_data_from_repository(url2,driver, startTime)
 
-import sys
 startDate = sys.argv[1]
 endDate = sys.argv[2]
-main("2021-04-01", "2021-04-02")
+dataFolderPath= sys.argv[3]
+main(startDate, endDate, dataFolderPath)
