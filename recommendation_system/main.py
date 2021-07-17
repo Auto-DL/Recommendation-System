@@ -30,10 +30,11 @@ for repository in result:
     urls.append(repository.html_url)
 
 options=Options()
-options.headless=True
+options.headless = True
+options.add_experimental_option('prefs',{'permissions-policy: interest-cohort':()})
 driver=webdriver.Chrome(ChromeDriverManager(path='./').install(),options=options)
 
-def get_data_from_repository(url):
+def get_data_from_repository(url,startTime):
     queue=list()
     links_list = set()
     sequential_list=list()
@@ -69,6 +70,9 @@ def get_data_from_repository(url):
         
     def bfs():
         while queue:
+            currentTime = time.time()
+            if (currentTime- startTime) > 300:
+                break
             link=queue.pop(0)
             search_through_files(link)
 
@@ -170,5 +174,14 @@ def model_to_pickle(model):
         pickle.dump(model,f)
         f.close()
 
-url2='https://github.com/bamblebam/image-classification-rps'
-t=get_data_from_repository(url2)
+url2 = 'https://github.com/bamblebam/image-classification-rps'
+
+def main():
+    start = time.time()
+    for url in urls:
+        startTimeForUrl = time.time()
+        get_data_from_repository(url, startTimeForUrl)
+    end = time.time()
+    print("Total time taken:", {end-start})
+
+main()
