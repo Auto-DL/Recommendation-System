@@ -13,6 +13,7 @@ from tqdm import tqdm
 import pickle
 from uuid import uuid4
 
+
 import re
 
 
@@ -54,12 +55,12 @@ def get_data_from_repository(url, driver,startTime):
                     print("bam")
                     sequential_list.append(get_model_arrays(code_body.text))
             except:
-                pass
+                print("ERROR")
 
     def bfs():
         while queue:
             currentTime = time.time()
-            if (currentTime- startTime) > 300:
+            if (currentTime- startTime) > 600:
                 break
             link=queue.pop(0)
             search_through_files(link)
@@ -191,11 +192,9 @@ def model_to_pickle(model):
         f.close()
 
 
-# url2 = "https://github.com/bamblebam/image-classification-rps"
-# t = get_data_from_repository(url2)
 
 
-def get_all_repositories(startDate, endDate):
+def main(startDate, endDate):
     startTime = time.time()
     GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
     g = gh.Github(GITHUB_ACCESS_TOKEN)
@@ -214,12 +213,10 @@ def get_all_repositories(startDate, endDate):
     print("Total time taken:", {endTime-startTime})
 
 
-# def main():
-#     testCases = urls[:3]
-#     for url in testCases:
-#         get_data_from_repository(url)
+# url2 = "https://github.com/bamblebam/image-classification-rps"
+# t = get_data_from_repository(url2,driver, startTime)
 
-
-# main()
-
-get_all_repositories("2021-04-01", "2021-04-02")
+import sys
+startDate = sys.argv[1]
+endDate = sys.argv[2]
+main("2021-04-01", "2021-04-02")
