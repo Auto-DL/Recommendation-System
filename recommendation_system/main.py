@@ -1,6 +1,5 @@
 import os
 import sys
-import pathlib
 
 import github as gh
 
@@ -14,11 +13,10 @@ from tqdm import tqdm
 import pickle
 from uuid import uuid4
 
-
 import re
 
 
-def get_data_from_repository(url, driver,startTime, path):
+def get_data_from_repository(url, driver, startTime, path):
     queue = list()
     links_list = set()
     sequential_list = list()
@@ -53,7 +51,7 @@ def get_data_from_repository(url, driver,startTime, path):
                     "//*[@class='highlight tab-size js-file-line-container']"
                 )
                 if "Sequential" in code_body.text:
-                    print("bam")
+                    print("sequential")
                     sequential_list.append(get_model_arrays(code_body.text, path))
             except:
                 print("ERROR")
@@ -61,9 +59,9 @@ def get_data_from_repository(url, driver,startTime, path):
     def bfs():
         while queue:
             currentTime = time.time()
-            if (currentTime- startTime) > 600:
+            if (currentTime - startTime) > 600:
                 break
-            link=queue.pop(0)
+            link = queue.pop(0)
             search_through_files(link)
 
     def get_all_relevant_links(url):
@@ -95,9 +93,6 @@ def getLayerSequence1helper(code):
     :return: array in correct sequence of layers
     :rtype: array model.add(.*)
     """
-    # re.findall('Sequential\((.*)',code,re.DOTALL)
-    # re.findall('(Sequential\()(.+)((?:\n.+)+)(\]\))',code)
-    # re.findall('(?s)_\(Sequential(.*?)\)',code) \[([^]]+)\]
     rawLayerSequence = re.findall("Sequential\(\[([^]]+)\]\)", code, re.DOTALL)
     layerSequence = list()
     temp = list()
@@ -179,23 +174,20 @@ def getLayerSequence2(code, path):
             model_to_pickle(modelLayers)
 
 
-def get_model_arrays(code,path):
-    getLayerSequence1(code,path)
+def get_model_arrays(code, path):
+    getLayerSequence1(code, path)
     getLayerSequence2(code, path)
 
 
 def model_to_pickle(model, path):
     fname = str(uuid4().hex[:32]) + ".pkl"
-    # curr_dir = pathlib.Path(os.getcwd())
     fpath = os.path.join(path, fname)
     with open(fpath, "wb") as f:
         pickle.dump(model, f)
         f.close()
 
 
-
-
-def main(startDate, endDate,dataFolderPath):
+def main(startDate, endDate, dataFolderPath):
     startTime = time.time()
     GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
     g = gh.Github(GITHUB_ACCESS_TOKEN)
@@ -209,15 +201,12 @@ def main(startDate, endDate,dataFolderPath):
     driver = webdriver.Chrome(ChromeDriverManager(path="./").install(), options=options)
     for url in tqdm(urls):
         startTimeForUrl = time.time()
-        get_data_from_repository(url, driver,startTimeForUrl, dataFolderPath)
+        get_data_from_repository(url, driver, startTimeForUrl, dataFolderPath)
     endTime = time.time()
-    print("Total time taken:", {endTime-startTime})
+    print("Total time taken:", {endTime - startTime})
 
-
-# url2 = "https://github.com/bamblebam/image-classification-rps"
-# t = get_data_from_repository(url2,driver, startTime)
 
 startDate = sys.argv[1]
 endDate = sys.argv[2]
-dataFolderPath= sys.argv[3]
+dataFolderPath = sys.argv[3]
 main(startDate, endDate, dataFolderPath)
