@@ -1,4 +1,4 @@
 cd %cd%
-cd "recommendation_system"
+cd "data_scraping"
 
 python tensorflow_data.py %1 %2 %3
