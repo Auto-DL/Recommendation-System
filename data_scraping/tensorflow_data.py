@@ -277,7 +277,7 @@ def main(startDate, endDate, dataFolderPath):
     print("Total time taken:", {endTime - startTime})
 
 
-startDate = sys.argv[1]
-endDate = sys.argv[2]
-dataFolderPath = sys.argv[3]
-main(startDate, endDate, dataFolderPath)
+# startDate = sys.argv[1]
+# endDate = sys.argv[2]
+# dataFolderPath = sys.argv[3]
+# main(startDate, endDate, dataFolderPath)
