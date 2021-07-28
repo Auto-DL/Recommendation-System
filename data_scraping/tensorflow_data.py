@@ -218,7 +218,7 @@ def getLayerSequence2(code, path):
         if len(modelLayers) < 4:
             isValid = False
         if isValid:
-            model_to_pickle(modelLayers)
+            model_to_pickle(modelLayers, path)
 
 
 def get_model_arrays(code, path):

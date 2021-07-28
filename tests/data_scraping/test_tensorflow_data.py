@@ -35,4 +35,9 @@ def test_model_to_pickle(tmpdir, get_test_model):
 
 def test_get_layer_sequence1_helper(get_test_code):
     expected = tf_data.getLayerSequence1helper(get_test_code)
-    assert len(expected) == 2
+    assert len(expected) == 3
+
+
+def test_get_layer_sequence2(get_test_code, tmpdir):
+    tf_data.getLayerSequence2(get_test_code, tmpdir)
+    assert len(os.listdir(tmpdir)) == 1
