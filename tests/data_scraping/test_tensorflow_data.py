@@ -19,6 +19,11 @@ def get_test_model():
     return ["Conv2D", "Maxpooling2D", "Flatten", "Dense", "Dense"]
 
 
+@pytest.fixture
+def get_test_rawLayerSequence(get_test_code):
+    return tf_data.getLayerSequence1helper(get_test_code)
+
+
 @patch("data_scraping.tensorflow_data.get_data_from_repository")
 def test_get_data_from_repository(mock_get_data_from_repository):
     # function to test wether the function get_data_from_repository is working properly
@@ -38,6 +43,21 @@ def test_get_layer_sequence1_helper(get_test_code):
     assert len(expected) == 3
 
 
+def test_get_cleaned_layers(get_test_rawLayerSequence, tmpdir):
+    tf_data.getCleanedLayers(get_test_rawLayerSequence, tmpdir)
+    assert len(os.listdir(tmpdir)) == 2
+
+
+def test_get_layer_sequence1(get_test_code, tmpdir):
+    tf_data.getLayerSequence1(get_test_code, tmpdir)
+    assert len(os.listdir(tmpdir)) == 2
+
+
 def test_get_layer_sequence2(get_test_code, tmpdir):
     tf_data.getLayerSequence2(get_test_code, tmpdir)
     assert len(os.listdir(tmpdir)) == 1
+
+
+def test_get_model_arrays(get_test_code, tmpdir):
+    tf_data.get_model_arrays(get_test_code, tmpdir)
+    assert len(os.listdir(tmpdir)) == 3
