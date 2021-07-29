@@ -39,6 +39,19 @@ def get_driver():
     return driver
 
 
+@pytest.fixture
+def get_test_repository_url():
+    return "https://github.com/bamblebam/image-classification-rps"
+
+
+def test_get_data_from_repository(get_test_repository_url, get_driver, tmpdir):
+    startTimeForUrl = time.time()
+    tf_data.get_data_from_repository(
+        get_test_repository_url, get_driver, startTimeForUrl, tmpdir
+    )
+    assert len(os.listdir(tmpdir)) == 3
+
+
 def test_model_to_pickle(tmpdir, get_test_model):
     tf_data.model_to_pickle(get_test_model, tmpdir)
     assert len(os.listdir(tmpdir)) == 1
@@ -46,7 +59,7 @@ def test_model_to_pickle(tmpdir, get_test_model):
 
 def test_get_layer_sequence1_helper(get_test_code):
     expected = tf_data.getLayerSequence1helper(get_test_code)
-    assert len(expected) == 3
+    assert len(expected) == 4
 
 
 def test_get_cleaned_layers(get_test_rawLayerSequence, tmpdir):

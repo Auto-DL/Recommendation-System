@@ -66,6 +66,11 @@ model4=Sequential([
   keras.layers.Dense(3, activation='softmax'),
   keras.layers.Dense(3, activation='softmax')
 ])
+#for type 1 with less than the required number of layers
+model6=Sequential([
+  keras.layers.Conv2D(128, (3, 3), input_shape=(64, 64, 1), padding='same'),
+  keras.layers.Conv2D(128, (3, 3), input_shape=(64, 64, 1), padding='same'),
+])
 # %%
 reduceLR = ReduceLROnPlateau(
     monitor='val_loss', factor=0.1, patience=2, verbose=0, mode='auto',
