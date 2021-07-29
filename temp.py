@@ -57,7 +57,7 @@ def get_data_from_repository(url, driver, startTime, path):
                 print("ERROR")
         elif link.endswith(".ipynb") and not "venv" in link:
             driver.get(link)
-            time.sleep(5)
+            time.sleep(10)
             # try:
             driver.switch_to.frame(0)
             code_body = driver.find_element_by_xpath(
@@ -185,7 +185,7 @@ def getLayerSequence2(code, path):
         if len(modelLayers) < 4:
             isValid = False
         if isValid:
-            model_to_pickle(modelLayers)
+            model_to_pickle(modelLayers,path)
 
 
 def get_model_arrays(code, path):
@@ -228,6 +228,6 @@ def main(startDate, endDate, dataFolderPath):
 options = Options()
 startTime = time.time()
 driver = webdriver.Chrome(ChromeDriverManager(path="./").install(), options=options)
-folder = 'C:\\Users\\vedant\\Desktop\\internships\\Auto-dl\\Recomendation\\Recommendation-System\\data'
+folder = sys.argv[1]
 
-get_data_from_repository('https://github.com/bamblebam/covid-cough-audio-analysis', driver,startTime, folder)
+get_data_from_repository('https://github.com/WongKinYiu/Keras_Sequential_API_Tutorial', driver,startTime, folder)
