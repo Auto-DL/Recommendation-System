@@ -273,8 +273,9 @@ def main(startDate, endDate, dataFolderPath):
     for url in tqdm(urls):
         startTimeForUrl = time.time()
         get_data_from_repository(url, driver, startTimeForUrl, dataFolderPath)
-    endTime = time.time()
-    print("Total time taken:", {endTime - startTime})
+        endTime = time.time()
+        print("Total time taken:", {endTime - startTime})
+    print("Finished")
 
 
 # startDate = sys.argv[1]
