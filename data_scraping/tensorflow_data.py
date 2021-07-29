@@ -26,7 +26,7 @@ def get_data_from_repository(url, driver, startTime, path):
             href = link.get_attribute("href")
             if href in links_list:
                 continue
-            if "/tree/" in href or href.endswith(".py"):
+            if "/tree/" in href or href.endswith(".py") or href.endswith('.ipynb') :
                 links_list.add(href)
                 queue.append(href)
 
@@ -55,6 +55,20 @@ def get_data_from_repository(url, driver, startTime, path):
                     sequential_list.append(get_model_arrays(code_body.text, path))
             except:
                 print("ERROR")
+        elif link.endswith(".ipynb") and not "venv" in link:
+            driver.get(link)
+            time.sleep(10)
+            # try:
+            driver.switch_to.frame(0)
+            code_body = driver.find_element_by_xpath(
+                    "//*[@class='js-html']"
+                )
+            if "Sequential" in code_body.text:
+                print("sequential")
+                sequential_list.append(get_model_arrays(code_body.text, path))
+            # except:
+            #     print("ERROR")
+
 
     def bfs():
         while queue:
@@ -74,7 +88,7 @@ def get_data_from_repository(url, driver, startTime, path):
             links = table.find_elements_by_tag_name("a")
             for link in links:
                 href = link.get_attribute("href")
-                if ("/tree/" in href or href.endswith(".py")) and not "venv" in href:
+                if ("/tree/" in href or href.endswith(".py") or href.endswith('.ipynb')) and not "venv" in href:
                     links_list.add(href)
                     queue.append(href)
         except:
@@ -171,7 +185,7 @@ def getLayerSequence2(code, path):
         if len(modelLayers) < 4:
             isValid = False
         if isValid:
-            model_to_pickle(modelLayers)
+            model_to_pickle(modelLayers,path)
 
 
 def get_model_arrays(code, path):
