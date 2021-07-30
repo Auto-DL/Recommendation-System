@@ -218,7 +218,7 @@ def getLayerSequence2(code, path):
         if len(modelLayers) < 4:
             isValid = False
         if isValid:
-            model_to_pickle(modelLayers)
+            model_to_pickle(modelLayers, path)
 
 
 def get_model_arrays(code, path):
@@ -273,11 +273,12 @@ def main(startDate, endDate, dataFolderPath):
     for url in tqdm(urls):
         startTimeForUrl = time.time()
         get_data_from_repository(url, driver, startTimeForUrl, dataFolderPath)
-    endTime = time.time()
-    print("Total time taken:", {endTime - startTime})
+        endTime = time.time()
+        print("Total time taken:", {endTime - startTime})
+    print("Finished")
 
 
-startDate = sys.argv[1]
-endDate = sys.argv[2]
-dataFolderPath = sys.argv[3]
-main(startDate, endDate, dataFolderPath)
+# startDate = sys.argv[1]
+# endDate = sys.argv[2]
+# dataFolderPath = sys.argv[3]
+# main(startDate, endDate, dataFolderPath)
