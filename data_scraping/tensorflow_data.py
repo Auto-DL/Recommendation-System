@@ -271,10 +271,12 @@ def main(startDate, endDate, dataFolderPath):
     :rtype: None
     """
     startTime = time.time()
+    print("Getting token")
     GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
     g = gh.Github(GITHUB_ACCESS_TOKEN)
     query = f"tensorflow language:python created:{startDate}..{endDate}"
     urls = []
+    print("running query")
     result = g.search_repositories(query)
     for repository in result:
         urls.append(repository.html_url)
@@ -283,6 +285,7 @@ def main(startDate, endDate, dataFolderPath):
     driver = webdriver.Chrome(
         ChromeDriverManager(path="./").install(), options=options
     )  # downloads the latest version of the chrome drivers
+    print("started scraping")
     for url in tqdm(urls):
         startTimeForUrl = time.time()
         get_data_from_repository(url, driver, startTimeForUrl, dataFolderPath)
@@ -291,16 +294,42 @@ def main(startDate, endDate, dataFolderPath):
     print("Finished")
 
 
-# startDate = sys.argv[1]
-# endDate = sys.argv[2]
-# dataFolderPath = sys.argv[3]
-# main(startDate, endDate, dataFolderPath)
 
-print(__name__)
+def getDates(start, end):
+    """
+    Function to convert the dates into sets of 15 days for API limit
+    :param start: start date of the data
+    :param end: end date of the data
+    :return: dates: Array of dates for iteration
+    :rtype: Array
+    """
+    startYear,startMonth,startDate = start.split("-")
+    endYear, endMonth, endDate = end.split("-")
+    dates = []
+    tempEndMonth = 12
+    tempStartMonth = startMonth
+    for i in range(int(startYear), int(endYear) + 1):
+        dateStr = str(i)
+        if i == int(endYear):
+            tempEndMonth = endMonth
+        if i != int(startYear):
+            tempStartMonth = 1
+        for j in range(int(tempStartMonth), int(tempEndMonth) + 1):
+            if j < 10:
+                j = '0' + str(j)
+            dateStr1 = dateStr + '-'+str(j)+'-01'
+            dates.append(dateStr1)
+            dateStr2 = dateStr + '-'+str(j)+'-15'
+            dates.append(dateStr2)
+    return dates
 
 if __name__ == "__main__":
     print("start")
     startDate = sys.argv[1]
     endDate = sys.argv[2]
+    dates = getDates(startDate,endDate)
     dataFolderPath = sys.argv[3]
-    main(startDate, endDate, dataFolderPath)
+    print(dates)
+    for i in range(len(dates) - 1):
+        print(dates[i],dates[i+1])
+        main(dates[i], dates[i+1], dataFolderPath)
