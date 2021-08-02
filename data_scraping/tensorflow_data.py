@@ -17,11 +17,26 @@ import re
 
 
 def get_data_from_repository(url, driver, startTime, path):
+    """
+    Function to get data from a repository
+    :param url: url of the repository
+    :param driver: webdriver to get the data
+    :param startTime: time taken when the function is called used to give the scraping time an upper bound
+    :param path: path to save the data
+    :return: List of models in terms of layer data (Not required will be deprecated)
+    :rtype: list
+    """
     queue = list()
     links_list = set()
     sequential_list = list()
 
     def push_to_queue(links):
+        """
+        Function to push the file links at a particular level of the repository to the queue
+        :param links: list of file links at the parent level
+        :return: None
+        :rtype: None
+        """
         for link in links:
             href = link.get_attribute("href")
             if href in links_list:
@@ -31,13 +46,19 @@ def get_data_from_repository(url, driver, startTime, path):
                 queue.append(href)
 
     def search_through_files(link):
+        """
+        Function to search through a file or folder
+        :param link: link to the file or folder
+        :return: None
+        :rtype: None
+        """
         print(link)
         if "/tree/" in link and not "venv" in link:
             driver.get(link)
             time.sleep(2.5)
             try:
                 table = driver.find_element_by_xpath(
-                    "//*[@class='Details-content--hidden-not-important js-navigation-container js-active-navigation-container d-block']"
+                    "//*[@class='Details-content--hidden-not-important js-navigation-container js-active-navigation-container d-block']"  # xpath for file table
                 )
                 links = table.find_elements_by_tag_name("a")
                 push_to_queue(links)
@@ -48,7 +69,7 @@ def get_data_from_repository(url, driver, startTime, path):
             time.sleep(2.5)
             try:
                 code_body = driver.find_element_by_xpath(
-                    "//*[@class='highlight tab-size js-file-line-container']"
+                    "//*[@class='highlight tab-size js-file-line-container']"  # xpath for code container
                 )
                 if "Sequential" in code_body.text:
                     print("sequential")
@@ -68,6 +89,11 @@ def get_data_from_repository(url, driver, startTime, path):
             #     print("ERROR")
 
     def bfs():
+        """
+        Function to perform reccurent BFS to traverse the repository
+        :return: None
+        :rtype: None
+        """
         while queue:
             currentTime = time.time()
             if (currentTime - startTime) > 600:
@@ -76,6 +102,12 @@ def get_data_from_repository(url, driver, startTime, path):
             search_through_files(link)
 
     def get_all_relevant_links(url):
+        """
+        Function to get the root file and folder urls and initialize the entire thing
+        :param url: url of the repository
+        :return: None
+        :rtype: None
+        """
         links_list.add(url)
         driver.get(url)
         try:
@@ -101,10 +133,10 @@ def get_data_from_repository(url, driver, startTime, path):
 
 def getLayerSequence1helper(code):
     """
-    This is the function for models of type Sequential([...])
-    :param code: the code to check layer sequence
-    :return: array in correct sequence of layers
-    :rtype: array model.add(.*)
+    Helper function to get models of type Sequential([...])
+    :param code: the code from the .py file
+    :return: list in correct sequence of layers
+    :rtype: list model.add(.*)
     """
     rawLayerSequence = re.findall("Sequential\(\[([^]]+)\]\)", code, re.DOTALL)
     layerSequence = list()
@@ -116,6 +148,13 @@ def getLayerSequence1helper(code):
 
 
 def getCleanedLayers(layerlist, path):
+    """
+    Function to clean the layers recieved from getLayerSequence1helper
+    :param layerlist: the list of layers from getLayerSequence1helper
+    :param path: path to save the data
+    :return: None
+    :rtype: None
+    """
     layers = [
         "Conv2D",
         "Dense",
@@ -145,14 +184,22 @@ def getCleanedLayers(layerlist, path):
 
 
 def getLayerSequence1(code, path):
+    """
+    Function to get the models of type Sequential([...])
+    :param code: the code from the .py file
+    :param path: path to save the data
+    :return: None
+    :rtype: None
+    """
     layerlist = getLayerSequence1helper(code)
     getCleanedLayers(layerlist, path)
 
 
 def getLayerSequence2(code, path):
     """
-    This is the function for models of type model.add(layerName)
-    :param code: the code to check layer sequence
+    Function to get models of type model.add(layerName)
+    :param code: the code from the .py file
+    :param path: path to save the data
     :return: None
     :rtype: None
     """
@@ -188,11 +235,25 @@ def getLayerSequence2(code, path):
 
 
 def get_model_arrays(code, path):
+    """
+    Wrapper function to call the other functions to get the model arrays
+    :param code: the code from the .py file
+    :param path: path to save the data
+    :return: None
+    :rtype: None
+    """
     getLayerSequence1(code, path)
     getLayerSequence2(code, path)
 
 
 def model_to_pickle(model, path):
+    """
+    Function to convert the model to a pickle object
+    :param model: the model to be converted
+    :param path: path to save the data
+    :return: None
+    :rtype: None
+    """
     fname = str(uuid4().hex[:32]) + ".pkl"
     fpath = os.path.join(path, fname)
     with open(fpath, "wb") as f:
@@ -201,6 +262,14 @@ def model_to_pickle(model, path):
 
 
 def main(startDate, endDate, dataFolderPath):
+    """
+    Function to run the code from the command line
+    :param startDate: start date of the data
+    :param endDate: end date of the data
+    :param dataFolderPath: path to the data folder
+    :return: None
+    :rtype: None
+    """
     startTime = time.time()
     GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
     g = gh.Github(GITHUB_ACCESS_TOKEN)
@@ -211,15 +280,18 @@ def main(startDate, endDate, dataFolderPath):
         urls.append(repository.html_url)
     options = Options()
     options.headless = True
-    driver = webdriver.Chrome(ChromeDriverManager(path="./").install(), options=options)
+    driver = webdriver.Chrome(
+        ChromeDriverManager(path="./").install(), options=options
+    )  # downloads the latest version of the chrome drivers
     for url in tqdm(urls):
         startTimeForUrl = time.time()
         get_data_from_repository(url, driver, startTimeForUrl, dataFolderPath)
-    endTime = time.time()
-    print("Total time taken:", {endTime - startTime})
+        endTime = time.time()
+        print("Total time taken:", {endTime - startTime})
+    print("Finished")
 
 
-startDate = sys.argv[1]
-endDate = sys.argv[2]
-dataFolderPath = sys.argv[3]
-main(startDate, endDate, dataFolderPath)
+# startDate = sys.argv[1]
+# endDate = sys.argv[2]
+# dataFolderPath = sys.argv[3]
+# main(startDate, endDate, dataFolderPath)
