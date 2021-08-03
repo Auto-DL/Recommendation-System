@@ -294,7 +294,6 @@ def main(startDate, endDate, dataFolderPath):
     print("Finished")
 
 
-
 def getDates(start, end):
     """
     Function to convert the dates into sets of 15 days for API limit
@@ -303,7 +302,7 @@ def getDates(start, end):
     :return: dates: Array of dates for iteration
     :rtype: Array
     """
-    startYear,startMonth = start.split("-")
+    startYear, startMonth = start.split("-")
     endYear, endMonth = end.split("-")
     dates = []
     tempEndMonth = 12
@@ -316,20 +315,21 @@ def getDates(start, end):
             tempStartMonth = 1
         for j in range(int(tempStartMonth), int(tempEndMonth) + 1):
             if j < 10:
-                j = '0' + str(j)
-            dateStr1 = dateStr + '-'+str(j)+'-01'
+                j = "0" + str(j)
+            dateStr1 = dateStr + "-" + str(j) + "-01"
             dates.append(dateStr1)
-            dateStr2 = dateStr + '-'+str(j)+'-15'
+            dateStr2 = dateStr + "-" + str(j) + "-15"
             dates.append(dateStr2)
     return dates
+
 
 if __name__ == "__main__":
     print("start")
     startDate = sys.argv[1]
     endDate = sys.argv[2]
-    dates = getDates(startDate,endDate)
+    dates = getDates(startDate, endDate)
     dataFolderPath = sys.argv[3]
     print(dates)
     for i in range(len(dates) - 1):
-        print(dates[i],dates[i+1])
-        main(dates[i], dates[i+1], dataFolderPath)
+        print(dates[i], dates[i + 1])
+        main(dates[i], dates[i + 1], dataFolderPath)
