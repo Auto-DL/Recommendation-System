@@ -329,7 +329,6 @@ if __name__ == "__main__":
     endDate = sys.argv[2]
     dates = getDates(startDate, endDate)
     dataFolderPath = sys.argv[3]
-    print(dates)
     for i in range(len(dates) - 1):
         print(dates[i], dates[i + 1])
         main(dates[i], dates[i + 1], dataFolderPath)
