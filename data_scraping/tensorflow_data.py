@@ -303,8 +303,8 @@ def getDates(start, end):
     :return: dates: Array of dates for iteration
     :rtype: Array
     """
-    startYear,startMonth,startDate = start.split("-")
-    endYear, endMonth, endDate = end.split("-")
+    startYear,startMonth = start.split("-")
+    endYear, endMonth = end.split("-")
     dates = []
     tempEndMonth = 12
     tempStartMonth = startMonth
