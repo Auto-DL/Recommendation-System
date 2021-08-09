@@ -1,6 +1,6 @@
 import os
 import sys
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 
 import github as gh
 
@@ -136,8 +136,15 @@ def get_data_from_repository(url, driver, startTime, path):
                 sequential_list.append(get_model_arrays(code_body.text, path))
 
     get_all_relevant_links(url)
-    for link in relevant_links_list:
-        process_files(link)
+    # for link in relevant_links_list:
+    #     process_files(link)
+    # p = Pool(4)
+    # p.map(process_files, relevant_links_list)
+    relevant_links_list = list(relevant_links_list)
+    p = Process(target=process_files, args=tuple(relevant_links_list[0]))
+    p.start()
+    p.start()
+    p.join()
     return sequential_list
 
 
