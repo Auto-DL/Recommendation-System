@@ -1,6 +1,6 @@
 import os
 import sys
-from multiprocessing import Pool, Process
+from pathos.multiprocessing import Pool
 
 import github as gh
 
@@ -113,6 +113,11 @@ def get_data_from_repository(url, driver, startTime, path):
         print("Ended")
 
     def process_files(link):
+        options = Options()
+        options.headless = True
+        driver = webdriver.Chrome(
+            ChromeDriverManager(path="./").install(), options=options
+        )
         if link.endswith(".py") and not "venv" in link:
             driver.get(link)
             time.sleep(2.5)
@@ -134,17 +139,18 @@ def get_data_from_repository(url, driver, startTime, path):
             if "Sequential" in code_body.text:
                 print("sequential")
                 sequential_list.append(get_model_arrays(code_body.text, path))
+        driver.close()
 
     get_all_relevant_links(url)
     # for link in relevant_links_list:
     #     process_files(link)
-    # p = Pool(4)
-    # p.map(process_files, relevant_links_list)
-    relevant_links_list = list(relevant_links_list)
-    p = Process(target=process_files, args=tuple(relevant_links_list[0]))
-    p.start()
-    p.start()
-    p.join()
+    p = Pool()
+    p.map(process_files, relevant_links_list)
+    # relevant_links_list = list(relevant_links_list)
+    # p = Process(target=process_files, args=tuple(relevant_links_list[0]))
+    # p.start()
+    # p.start()
+    # p.join()
     return sequential_list
 
 
