@@ -1,5 +1,6 @@
 import os
 import sys
+from multiprocessing import Pool
 
 import github as gh
 
@@ -28,6 +29,7 @@ def get_data_from_repository(url, driver, startTime, path):
     """
     queue = list()
     links_list = set()
+    relevant_links_list = set()
     sequential_list = list()
 
     def push_to_queue(links):
@@ -41,9 +43,12 @@ def get_data_from_repository(url, driver, startTime, path):
             href = link.get_attribute("href")
             if href in links_list:
                 continue
-            if "/tree/" in href or href.endswith(".py") or href.endswith(".ipynb"):
+            if "/tree/" in href:
                 links_list.add(href)
                 queue.append(href)
+            elif href.endswith(".py") or href.endswith(".ipynb"):
+                links_list.add(href)
+                relevant_links_list.add(href)
 
     def search_through_files(link):
         """
@@ -64,29 +69,6 @@ def get_data_from_repository(url, driver, startTime, path):
                 push_to_queue(links)
             except:
                 print("No element found")
-        elif link.endswith(".py") and not "venv" in link:
-            driver.get(link)
-            time.sleep(2.5)
-            try:
-                code_body = driver.find_element_by_xpath(
-                    "//*[@class='highlight tab-size js-file-line-container']"  # xpath for code container
-                )
-                if "Sequential" in code_body.text:
-                    print("sequential")
-                    sequential_list.append(get_model_arrays(code_body.text, path))
-            except:
-                print("ERROR")
-        elif link.endswith(".ipynb") and not "venv" in link:
-            driver.get(link)
-            time.sleep(10)
-            # try:
-            driver.switch_to.frame(0)
-            code_body = driver.find_element_by_xpath("//*[@class='js-html']")
-            if "Sequential" in code_body.text:
-                print("sequential")
-                sequential_list.append(get_model_arrays(code_body.text, path))
-            # except:
-            #     print("ERROR")
 
     def bfs():
         """
@@ -117,17 +99,45 @@ def get_data_from_repository(url, driver, startTime, path):
             links = table.find_elements_by_tag_name("a")
             for link in links:
                 href = link.get_attribute("href")
-                if (
-                    "/tree/" in href or href.endswith(".py") or href.endswith(".ipynb")
-                ) and not "venv" in href:
+                if ("/tree/" in href) and not "venv" in href:
                     links_list.add(href)
                     queue.append(href)
+                elif (
+                    href.endswith(".py") or href.endswith(".ipynb")
+                ) and not "venv" in href:
+                    links_list.add(href)
+                    relevant_links_list.add(href)
         except:
             print("Error")
         bfs()
         print("Ended")
 
+    def process_files(link):
+        if link.endswith(".py") and not "venv" in link:
+            driver.get(link)
+            time.sleep(2.5)
+            try:
+                code_body = driver.find_element_by_xpath(
+                    "//*[@class='highlight tab-size js-file-line-container']"  # xpath for code container
+                )
+                if "Sequential" in code_body.text:
+                    print("sequential")
+                    sequential_list.append(get_model_arrays(code_body.text, path))
+            except:
+                print("ERROR")
+        elif link.endswith(".ipynb") and not "venv" in link:
+            driver.get(link)
+            time.sleep(10)
+            # try:
+            driver.switch_to.frame(0)
+            code_body = driver.find_element_by_xpath("//*[@class='js-html']")
+            if "Sequential" in code_body.text:
+                print("sequential")
+                sequential_list.append(get_model_arrays(code_body.text, path))
+
     get_all_relevant_links(url)
+    for link in relevant_links_list:
+        process_files(link)
     return sequential_list
 
 
@@ -323,12 +333,21 @@ def getDates(start, end):
     return dates
 
 
+# if __name__ == "__main__":
+#     print("start")
+#     startDate = sys.argv[1]
+#     endDate = sys.argv[2]
+#     dates = getDates(startDate, endDate)
+#     dataFolderPath = sys.argv[3]
+#     for i in range(len(dates) - 1):
+#         print(dates[i], dates[i + 1])
+#         main(dates[i], dates[i + 1], dataFolderPath)
+
 if __name__ == "__main__":
-    print("start")
-    startDate = sys.argv[1]
-    endDate = sys.argv[2]
-    dates = getDates(startDate, endDate)
-    dataFolderPath = sys.argv[3]
-    for i in range(len(dates) - 1):
-        print(dates[i], dates[i + 1])
-        main(dates[i], dates[i + 1], dataFolderPath)
+    options = Options()
+    options.headless = True
+    driver = webdriver.Chrome(
+        ChromeDriverManager(path="./").install(), options=options
+    )  # downloads the latest version of the chrome drivers
+    url = "https://github.com/bamblebam/image-classification-rps"
+    get_data_from_repository(url, driver, time.time(), "./data")
