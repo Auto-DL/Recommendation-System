@@ -1,6 +1,6 @@
 # requirements-dev
 pre-commit==2.13.0
-black
+# black
 autoflake
 
 appdirs==1.4.4
