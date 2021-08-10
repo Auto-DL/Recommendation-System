@@ -112,12 +112,19 @@ def get_data_from_repository(url, driver, startTime, path):
         bfs()
         print("Ended")
 
-    def process_files(link):
+    def process_files(link, driver):
+        """
+        Processing each file using multiprocessing 
+        :param link: link to the repository
+        :param driver: webdriver to get the data
+        :return: None
+        :rtype: None
+        """
         options = Options()
         options.headless = True
-        driver = webdriver.Chrome(
-            ChromeDriverManager(path="./").install(), options=options
-        )
+        # driver = webdriver.Chrome(
+        #     ChromeDriverManager(path="./").install(), options=options
+        # )
         if link.endswith(".py") and not "venv" in link:
             driver.get(link)
             time.sleep(2.5)
@@ -139,7 +146,7 @@ def get_data_from_repository(url, driver, startTime, path):
             if "Sequential" in code_body.text:
                 print("sequential")
                 sequential_list.append(get_model_arrays(code_body.text, path))
-        driver.close()
+        # driver.close()
 
     get_all_relevant_links(url)
     # for link in relevant_links_list:
@@ -242,8 +249,8 @@ def getLayerSequence2(code, path):
         isValid = True
         modelLayers = []
         model.strip()
-        model = model.replace(" ", "")
-        rawLayerSequences = re.findall(f"{model}\.add\((.*)\(", code)
+        model = model.replace(" ", "") #getting actual model name
+        rawLayerSequences = re.findall(f"{model}\.add\((.*)\(", code) # There can be multiple model names as model1.add(..) or temp.add(...) or ConvModel.add(...) etc
         for rawLayerSequence in rawLayerSequences:
             k = rawLayerSequence.split("(")[0]
             k = k.split(".")[-1]
