@@ -1,6 +1,5 @@
 # requirements-dev
 pre-commit==2.13.0
-# black
 autoflake
 
 appdirs==1.4.4
@@ -48,7 +47,6 @@ pytest==6.2.4
 pytest-cov==2.12.1
 python-dateutil==2.8.1
 python-dotenv==0.18.0
-# pywin32==301
 pyzmq==22.1.0
 regex==2021.7.6
 requests==2.25.1
