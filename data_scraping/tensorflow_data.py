@@ -114,7 +114,7 @@ def get_data_from_repository(url, driver, startTime, path):
 
     def process_files(link, driver):
         """
-        Processing each file using multiprocessing 
+        Processing each file using multiprocessing
         :param link: link to the repository
         :param driver: webdriver to get the data
         :return: None
@@ -249,8 +249,10 @@ def getLayerSequence2(code, path):
         isValid = True
         modelLayers = []
         model.strip()
-        model = model.replace(" ", "") #getting actual model name
-        rawLayerSequences = re.findall(f"{model}\.add\((.*)\(", code) # There can be multiple model names as model1.add(..) or temp.add(...) or ConvModel.add(...) etc
+        model = model.replace(" ", "")  # getting actual model name
+        rawLayerSequences = re.findall(
+            f"{model}\.add\((.*)\(", code
+        )  # There can be multiple model names as model1.add(..) or temp.add(...) or ConvModel.add(...) etc
         for rawLayerSequence in rawLayerSequences:
             k = rawLayerSequence.split("(")[0]
             k = k.split(".")[-1]
