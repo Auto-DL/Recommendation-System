@@ -13,6 +13,7 @@ import time
 from tqdm import tqdm
 import pickle
 from uuid import uuid4
+import glob
 
 import re
 
@@ -119,10 +120,11 @@ def get_data_from_repository(url, driver, startTime, path):
         :return: None
         :rtype: None
         """
-        options = Options()
+        options = Options() 
         options.headless = True
+        path_to_driver = glob.glob(r'drivers\chromedriver\win32\92.0.4515.107\chromedriver.exe')[0]
         driver = webdriver.Chrome(
-            ChromeDriverManager(path="./").install(), options=options
+            executable_path=path_to_driver, options=options
         )
         if link.endswith(".py") and not "venv" in link:
             driver.get(link)
