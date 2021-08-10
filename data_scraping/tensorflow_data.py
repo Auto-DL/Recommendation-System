@@ -112,19 +112,18 @@ def get_data_from_repository(url, driver, startTime, path):
         bfs()
         print("Ended")
 
-    def process_files(link, driver):
+    def process_files(link):
         """
         Processing each file using multiprocessing
         :param link: link to the repository
-        :param driver: webdriver to get the data
         :return: None
         :rtype: None
         """
         options = Options()
         options.headless = True
-        # driver = webdriver.Chrome(
-        #     ChromeDriverManager(path="./").install(), options=options
-        # )
+        driver = webdriver.Chrome(
+            ChromeDriverManager(path="./").install(), options=options
+        )
         if link.endswith(".py") and not "venv" in link:
             driver.get(link)
             time.sleep(2.5)
@@ -146,7 +145,7 @@ def get_data_from_repository(url, driver, startTime, path):
             if "Sequential" in code_body.text:
                 print("sequential")
                 sequential_list.append(get_model_arrays(code_body.text, path))
-        # driver.close()
+        driver.close()
 
     get_all_relevant_links(url)
     # for link in relevant_links_list:
