@@ -148,15 +148,8 @@ def get_data_from_repository(url, driver, startTime, path):
         driver.close()
 
     get_all_relevant_links(url)
-    # for link in relevant_links_list:
-    #     process_files(link)
     p = Pool()
     p.map(process_files, relevant_links_list)
-    # relevant_links_list = list(relevant_links_list)
-    # p = Process(target=process_files, args=tuple(relevant_links_list[0]))
-    # p.start()
-    # p.start()
-    # p.join()
     return sequential_list
 
 
@@ -367,12 +360,3 @@ if __name__ == "__main__":
     for i in range(len(dates) - 1):
         print(dates[i], dates[i + 1])
         main(dates[i], dates[i + 1], dataFolderPath)
-
-# if __name__ == "__main__":
-#     options = Options()
-#     options.headless = True
-#     driver = webdriver.Chrome(
-#         ChromeDriverManager(path="./").install(), options=options
-#     )  # downloads the latest version of the chrome drivers
-#     url = "https://github.com/bamblebam/image-classification-rps"
-#     get_data_from_repository(url, driver, time.time(), "./data")
