@@ -89,3 +89,8 @@ def test_main(mock_get_data_from_repository, mock_print, tmpdir):
     endDate = "2020-04-06"
     tf_data.main(startDate, endDate, tmpdir)
     mock_print.assert_called_with("Finished")
+
+
+def test_getDates():
+    dates = tf_data.getDates("2020-01", "2020-02")
+    assert len(dates) == 8
