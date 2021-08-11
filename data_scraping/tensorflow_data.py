@@ -360,5 +360,3 @@ if __name__ == "__main__":
     for i in range(len(dates) - 1):
         print(dates[i], dates[i + 1])
         main(dates[i], dates[i + 1], dataFolderPath)
-
-
