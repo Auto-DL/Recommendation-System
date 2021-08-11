@@ -122,9 +122,7 @@ def get_data_from_repository(url, driver, startTime, path):
         """
         options = Options()
         options.headless = True
-        path_to_driver = glob.glob(
-            r"drivers\chromedriver\win32\*\chromedriver.exe"
-        )[0]
+        path_to_driver = glob.glob(r"drivers\chromedriver\win32\*\chromedriver.exe")[0]
         driver = webdriver.Chrome(executable_path=path_to_driver, options=options)
         if link.endswith(".py") and not "venv" in link:
             driver.get(link)
