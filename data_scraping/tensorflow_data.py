@@ -123,7 +123,7 @@ def get_data_from_repository(url, driver, startTime, path):
         options = Options()
         options.headless = True
         path_to_driver = glob.glob(
-            r"drivers\chromedriver\win32\92.0.4515.107\chromedriver.exe"
+            r"drivers\chromedriver\win32\*\chromedriver.exe"
         )[0]
         driver = webdriver.Chrome(executable_path=path_to_driver, options=options)
         if link.endswith(".py") and not "venv" in link:
@@ -351,26 +351,30 @@ def getDates(start, end):
                 j = "0" + str(j)
             dateStr1 = dateStr + "-" + str(j) + "-01"
             dates.append(dateStr1)
-            dateStr2 = dateStr + "-" + str(j) + "-15"
+            dateStr2 = dateStr + "-" + str(j) + "-10"
+            dates.append(dateStr2)
+            dateStr2 = dateStr + "-" + str(j) + "-20"
+            dates.append(dateStr2)
+            dateStr2 = dateStr + "-" + str(j) + "-25"
             dates.append(dateStr2)
     return dates
 
 
-# if __name__ == "__main__":
-#     print("start")
-#     startDate = sys.argv[1]
-#     endDate = sys.argv[2]
-#     dates = getDates(startDate, endDate)
-#     dataFolderPath = sys.argv[3]
-#     for i in range(len(dates) - 1):
-#         print(dates[i], dates[i + 1])
-#         main(dates[i], dates[i + 1], dataFolderPath)
-
 if __name__ == "__main__":
-    options = Options()
-    options.headless = True
-    driver = webdriver.Chrome(
-        ChromeDriverManager(path="./").install(), options=options
-    )  # downloads the latest version of the chrome drivers
-    url = "https://github.com/bamblebam/image-classification-rps"
-    get_data_from_repository(url, driver, time.time(), "./data")
+    print("start")
+    startDate = sys.argv[1]
+    endDate = sys.argv[2]
+    dates = getDates(startDate, endDate)
+    dataFolderPath = sys.argv[3]
+    for i in range(len(dates) - 1):
+        print(dates[i], dates[i + 1])
+        main(dates[i], dates[i + 1], dataFolderPath)
+
+# if __name__ == "__main__":
+#     options = Options()
+#     options.headless = True
+#     driver = webdriver.Chrome(
+#         ChromeDriverManager(path="./").install(), options=options
+#     )  # downloads the latest version of the chrome drivers
+#     url = "https://github.com/bamblebam/image-classification-rps"
+#     get_data_from_repository(url, driver, time.time(), "./data")
