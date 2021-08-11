@@ -49,7 +49,7 @@ def test_get_data_from_repository(get_test_repository_url, get_driver, tmpdir):
     tf_data.get_data_from_repository(
         get_test_repository_url, get_driver, startTimeForUrl, tmpdir
     )
-    assert len(os.listdir(tmpdir)) == 3
+    assert len(os.listdir(tmpdir)) == 27
 
 
 def test_model_to_pickle(tmpdir, get_test_model):
