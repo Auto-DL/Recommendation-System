@@ -1,5 +1,6 @@
 import os
 import sys
+from pathos.multiprocessing import Pool
 
 import github as gh
 
@@ -12,6 +13,7 @@ import time
 from tqdm import tqdm
 import pickle
 from uuid import uuid4
+import glob
 
 import re
 
@@ -28,6 +30,7 @@ def get_data_from_repository(url, driver, startTime, path):
     """
     queue = list()
     links_list = set()
+    relevant_links_list = set()
     sequential_list = list()
 
     def push_to_queue(links):
@@ -41,9 +44,12 @@ def get_data_from_repository(url, driver, startTime, path):
             href = link.get_attribute("href")
             if href in links_list:
                 continue
-            if "/tree/" in href or href.endswith(".py") or href.endswith(".ipynb"):
+            if "/tree/" in href:
                 links_list.add(href)
                 queue.append(href)
+            elif href.endswith(".py") or href.endswith(".ipynb"):
+                links_list.add(href)
+                relevant_links_list.add(href)
 
     def search_through_files(link):
         """
@@ -64,29 +70,6 @@ def get_data_from_repository(url, driver, startTime, path):
                 push_to_queue(links)
             except:
                 print("No element found")
-        elif link.endswith(".py") and not "venv" in link:
-            driver.get(link)
-            time.sleep(2.5)
-            try:
-                code_body = driver.find_element_by_xpath(
-                    "//*[@class='highlight tab-size js-file-line-container']"  # xpath for code container
-                )
-                if "Sequential" in code_body.text:
-                    print("sequential")
-                    sequential_list.append(get_model_arrays(code_body.text, path))
-            except:
-                print("ERROR")
-        elif link.endswith(".ipynb") and not "venv" in link:
-            driver.get(link)
-            time.sleep(10)
-            # try:
-            driver.switch_to.frame(0)
-            code_body = driver.find_element_by_xpath("//*[@class='js-html']")
-            if "Sequential" in code_body.text:
-                print("sequential")
-                sequential_list.append(get_model_arrays(code_body.text, path))
-            # except:
-            #     print("ERROR")
 
     def bfs():
         """
@@ -117,17 +100,56 @@ def get_data_from_repository(url, driver, startTime, path):
             links = table.find_elements_by_tag_name("a")
             for link in links:
                 href = link.get_attribute("href")
-                if (
-                    "/tree/" in href or href.endswith(".py") or href.endswith(".ipynb")
-                ) and not "venv" in href:
+                if ("/tree/" in href) and not "venv" in href:
                     links_list.add(href)
                     queue.append(href)
+                elif (
+                    href.endswith(".py") or href.endswith(".ipynb")
+                ) and not "venv" in href:
+                    links_list.add(href)
+                    relevant_links_list.add(href)
         except:
             print("Error")
         bfs()
         print("Ended")
 
+    def process_files(link):
+        """
+        Processing each file using multiprocessing
+        :param link: link to the repository
+        :return: None
+        :rtype: None
+        """
+        options = Options()
+        options.headless = True
+        path_to_driver = glob.glob(r"drivers\chromedriver\win32\*\chromedriver.exe")[0]
+        driver = webdriver.Chrome(executable_path=path_to_driver, options=options)
+        if link.endswith(".py") and not "venv" in link:
+            driver.get(link)
+            time.sleep(2.5)
+            try:
+                code_body = driver.find_element_by_xpath(
+                    "//*[@class='highlight tab-size js-file-line-container']"  # xpath for code container
+                )
+                if "Sequential" in code_body.text:
+                    print("sequential")
+                    sequential_list.append(get_model_arrays(code_body.text, path))
+            except:
+                print("ERROR")
+        elif link.endswith(".ipynb") and not "venv" in link:
+            driver.get(link)
+            time.sleep(10)
+            # try:
+            driver.switch_to.frame(0)
+            code_body = driver.find_element_by_xpath("//*[@class='js-html']")
+            if "Sequential" in code_body.text:
+                print("sequential")
+                sequential_list.append(get_model_arrays(code_body.text, path))
+        driver.close()
+
     get_all_relevant_links(url)
+    p = Pool()
+    p.map(process_files, relevant_links_list)
     return sequential_list
 
 
@@ -219,8 +241,10 @@ def getLayerSequence2(code, path):
         isValid = True
         modelLayers = []
         model.strip()
-        model = model.replace(" ", "")
-        rawLayerSequences = re.findall(f"{model}\.add\((.*)\(", code)
+        model = model.replace(" ", "")  # getting actual model name
+        rawLayerSequences = re.findall(
+            f"{model}\.add\((.*)\(", code
+        )  # There can be multiple model names as model1.add(..) or temp.add(...) or ConvModel.add(...) etc
         for rawLayerSequence in rawLayerSequences:
             k = rawLayerSequence.split("(")[0]
             k = k.split(".")[-1]
@@ -318,7 +342,11 @@ def getDates(start, end):
                 j = "0" + str(j)
             dateStr1 = dateStr + "-" + str(j) + "-01"
             dates.append(dateStr1)
-            dateStr2 = dateStr + "-" + str(j) + "-15"
+            dateStr2 = dateStr + "-" + str(j) + "-10"
+            dates.append(dateStr2)
+            dateStr2 = dateStr + "-" + str(j) + "-20"
+            dates.append(dateStr2)
+            dateStr2 = dateStr + "-" + str(j) + "-25"
             dates.append(dateStr2)
     return dates
 
