@@ -21,7 +21,6 @@ app.add_middleware(
 )
 
 
-
 layer_map = {
     "Conv2D": 0,
     "Dense": 1,
@@ -63,5 +62,6 @@ def predict(payload: Dict):
     }
     return {"predictions": response}
 
-if __name__ == '__main__':
-    uvicorn.run(app, port=8080, host='0.0.0.0')
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=8080, host="0.0.0.0")
