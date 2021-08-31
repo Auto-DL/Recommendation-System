@@ -52,7 +52,6 @@ def predict(payload: Dict):
     :return: Dict
     For JS purposes it is an object with object 'predictions' which consist of the classes.
     """
-    print("\n\n",payload)
     layers = payload["layers"]
     layers = list(map(lambda x: layer_map[x], layers))
     layers = np.array(layers[-3:], dtype=np.float32).reshape(1, -1)
