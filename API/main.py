@@ -2,11 +2,24 @@ from fastapi import FastAPI
 import tensorflow as tf
 import numpy as np
 from typing import List, Dict
+import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 
 from tensorflow.python.ops.gen_array_ops import reverse
 
 # initializes the FASTAPI app. Do not change var name.
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 layer_map = {
     "Conv2D": 0,
@@ -48,3 +61,7 @@ def predict(payload: Dict):
         for idx, layer in enumerate(top_k)
     }
     return {"predictions": response}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=8080, host="0.0.0.0")
